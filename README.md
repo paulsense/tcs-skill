@@ -13,20 +13,25 @@ Saves time on repetitive test case writing while following ISTQB best practices.
 
 ## Installation
 
-**Using the install script (recommended):**
+**One-line install (recommended):**
 
 Mac/Linux:
 ```bash
-bash install.sh
+mkdir -p ~/.claude/skills && curl -fsSL https://raw.githubusercontent.com/paulsense/tcs-skill/main/tcs.md -o ~/.claude/skills/tcs.md
 ```
 
 Windows (PowerShell):
 ```powershell
-powershell -ExecutionPolicy Bypass -File install.ps1
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills" | Out-Null; Invoke-WebRequest -Uri "https://raw.githubusercontent.com/paulsense/tcs-skill/main/tcs.md" -OutFile "$env:USERPROFILE\.claude\skills\tcs.md"
 ```
 
-**Manual installation:**
-- Copy `tcs.md` to `~/.claude/skills/` (Mac/Linux) or `%USERPROFILE%\.claude\skills\` (Windows)
+**Or clone and run install script:**
+```bash
+git clone https://github.com/paulsense/tcs-skill.git
+bash tcs-skill/install.sh  # Mac/Linux
+# or
+powershell -ExecutionPolicy Bypass -File tcs-skill\install.ps1  # Windows
+```
 
 Then restart Claude Code and verify with `/skills`.
 
