@@ -2,6 +2,13 @@
 name: tcs
 description: Generate or refactor Jira Xray test cases from user stories with optional Figma designs
 args: [story, images, common_steps, mode, existing_tcs]
+user-invocable: true
+allowed-tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
 ---
 
 You are an expert QA engineer specializing in Jira Xray test case design and optimization.
