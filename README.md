@@ -1,204 +1,175 @@
 # TCS - Test Case Skill for Claude Code
 
-A simple tool that helps you create Jira Xray test cases from user stories and UI screenshots.
+A Claude Code skill that generates Jira Xray test cases from user stories and UI screenshots.
 
-## What Does This Do?
+## What It Does
 
-This skill helps you write test cases faster. Instead of manually writing test steps in Jira, you can:
-- Give it a Jira user story (XML file)
-- Add some UI screenshots (optional)
-- Tell it what common steps to include
-- Get back ready-to-use CSV files for Jira Xray
+Creates ready-to-import CSV test cases for Jira Xray from:
+- Jira user story XML exports
+- UI screenshots (Figma designs, mockups)
+- Your common setup steps
 
-That's it. It saves time on the repetitive parts of test case writing.
+Saves time on repetitive test case writing while following ISTQB best practices.
 
 ## Installation
 
-### Quick Install with Script (Recommended)
+**Using the install script (recommended):**
 
-**Mac/Linux:**
+Mac/Linux:
 ```bash
-git clone --depth 1 https://github.com/[YOUR-USERNAME]/[YOUR-REPO].git
-bash [YOUR-REPO]/install.sh
+bash install.sh
 ```
 
-**Windows (PowerShell):**
+Windows (PowerShell):
 ```powershell
-git clone --depth 1 https://github.com/[YOUR-USERNAME]/[YOUR-REPO].git
-powershell -ExecutionPolicy Bypass -File [YOUR-REPO]\install.ps1
+powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
-Then restart Claude Code and type `/skills` to verify.
+**Manual installation:**
+- Copy `tcs.md` to `~/.claude/skills/` (Mac/Linux) or `%USERPROFILE%\.claude\skills\` (Windows)
 
----
+Then restart Claude Code and verify with `/skills`.
 
-### One-Liner Install
+## Usage
 
-**Mac/Linux:**
-```bash
-mkdir -p ~/.claude/skills && curl -o ~/.claude/skills/tcs.md https://raw.githubusercontent.com/[YOUR-USERNAME]/[YOUR-REPO]/main/tcs.md
-```
+The skill has two modes: **generate** (create new test cases) and **refactor** (consolidate existing test cases).
 
-**Windows (PowerShell):**
-```powershell
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills"; Invoke-WebRequest -Uri "https://raw.githubusercontent.com/[YOUR-USERNAME]/[YOUR-REPO]/main/tcs.md" -OutFile "$env:USERPROFILE\.claude\skills\tcs.md"
-```
+### Generate Mode (Default)
 
-Then restart Claude Code and type `/skills` to verify.
+Create new test cases from a Jira user story:
 
----
-
-### Manual Install
-
-**If you prefer to install manually:**
-
-**Windows:**
-1. Press `Windows Key + R`
-2. Type: `%USERPROFILE%\.claude\skills` and press Enter
-3. If folder doesn't exist, create it
-4. Download `tcs.md` and copy it into this folder
-5. Restart Claude Code
-
-**Mac:**
-1. Press `Cmd + Shift + G` in Finder
-2. Type: `~/.claude/skills` and press Enter
-3. If folder doesn't exist, create it
-4. Download `tcs.md` and copy it into this folder
-5. Restart Claude Code
-
-**Verify it worked:**
-```
-/skills
-```
-You should see `tcs` in the list.
-
-## How to Use It
-
-### Step 1: Export Your Jira Story
-
-1. Open your Jira story (e.g., ATS-632)
-2. Click the `•••` menu (top right)
-3. Select "Export XML"
-4. Save the file to your desktop or project folder
-
-### Step 2: Take Screenshots of the UI (Optional)
-
-If you have Figma designs or UI mockups:
-- Take screenshots and save them as PNG/JPG files
-- Put them in the same folder as your XML file
-
-### Step 3: Run the Skill in Claude Code
-
-Open Claude Code and type:
-
-**Simple example (just the story):**
 ```
 /tcs "ATS-632.xml"
 ```
 
-**With UI screenshots:**
+With UI screenshots:
 ```
-/tcs "ATS-632.xml" "screenshot1.png,screenshot2.png"
-```
-
-**With your own common steps:**
-```
-/tcs "ATS-632.xml" "" "Login as admin, Open Settings page"
+/tcs "ATS-632.xml" "ui1.png,ui2.png"
 ```
 
-**Full example:**
+With custom common steps:
 ```
-/tcs "C:\Desktop\ATS-632.xml" "ui1.png,ui2.png" "Login to app, Navigate to Users"
+/tcs "ATS-632.xml" "ui1.png,ui2.png" "Login as admin, Navigate to Users page"
 ```
 
-> **Note:** If you skip images or common steps, just use empty quotes `""` as a placeholder.
+**Parameters:**
+1. `story` - Path to Jira XML export or story text (required)
+2. `images` - Comma-separated image paths (optional, use `""` to skip)
+3. `common_steps` - Setup steps for all test cases (optional, use `""` for defaults)
 
-### What You'll Get
+**Output:**
+- Creates 3-5 CSV files in current directory: `TC1_Verify_Feature.csv`, `TC2_Validate_UI.csv`, etc.
+- Each file has 3 columns: "Action", "Data", "Expected Result"
+- Ready for direct import into Jira Xray
 
-The skill creates CSV files like:
-- `TC1_Copy_Interview_Successfully.csv`
-- `TC2_Search_Vacancy.csv`
-- `TC3_Cancel_Operation.csv`
+### Refactor Mode
 
-Each file has test steps ready to import into Jira Xray.
+Consolidate existing test cases into minimal comprehensive coverage:
+
+```
+/tcs "" "" "" "refactor" "existing_testcases.csv"
+```
+
+Or simply provide the existing test cases (auto-detects refactor mode):
+```
+/tcs "" "" "" "" "my_existing_tcs.txt"
+```
+
+**Parameters:**
+1-3. Leave empty with `""`
+4. `mode` - Set to `"refactor"` (optional if providing existing_tcs)
+5. `existing_tcs` - Path to file with existing test cases (required for refactor)
+
+**Output:**
+- Analyzes existing test cases for redundancy
+- Shows consolidation plan and coverage verification
+- Creates consolidated CSV files (typically reduces count by 30-50%)
 
 ## What the CSV Files Look Like
 
-Each CSV file has:
-- A title and description at the top (as comments)
-- Three columns: "Action", "Data", "Expected Result"
-- Your common steps first
-- Then specific test steps for that scenario
-
-Example:
+Each CSV file contains:
 ```csv
-# Title: Copy interview successfully
-# Description: Verify user can copy interview questions from another vacancy
+# Title: Verify user can copy interview
+# Description: Test interview copy functionality with confirmation and cancellation
 "Action","Data","Expected Result"
-"Login to app","admin credentials","User logged in"
-"Navigate to Vacancies","","Vacancies page opens"
+"Login to application","admin credentials","User logged in"
+"Navigate to test area","","Test area displayed"
+"Click Copy Interview","","Modal opens with source selection"
+"Select source vacancy","Vacancy ABC-123","Source selected"
+"Click Confirm","","Interview copied successfully"
 "Click Copy Interview","","Modal opens"
+"Click Cancel","","Modal closes, no changes made"
 ```
 
-You can import these directly into Jira Xray.
+Import directly into Jira Xray.
 
-## Tips for Better Results
+## Key Features
 
-**1. Be specific with your common steps**
+**Smart Consolidation:**
+- Creates 1 test case per workflow (not per scenario)
+- Combines positive/negative/edge cases into comprehensive tests
+- Targets 3-5 test cases for typical stories
+
+**UI-Aware:**
+- Analyzes screenshots to identify buttons, forms, navigation
+- References specific UI elements in test steps
+- Validates visual changes
+
+**ISTQB-Compliant:**
+- Action-oriented test case titles
+- Clear expected results
+- Proper test coverage principles
+
+## Tips
+
+**1. Use full paths if files aren't found:**
 ```
-Good: "Login as admin, Navigate to Vacancies, Select vacancy ABC-123"
-Not great: "Do the setup stuff"
+/tcs "C:\Users\YourName\Desktop\story.xml"
 ```
 
-**2. Use full file paths if it can't find your files**
+**2. Be specific with common steps:**
 ```
-Instead of: "story.xml"
-Use: "C:\Users\YourName\Desktop\story.xml"
+Good: "Login as admin, Open Settings, Select User Management"
+Unclear: "Do the setup"
 ```
 
-**3. Don't worry about too many test cases**
-The skill usually creates 2-4 test cases per story. If you get too many, that's feedback for me to improve it.
+**3. Images help significantly:**
+UI screenshots enable the skill to generate more accurate, detailed test steps.
 
-**4. UI screenshots help a lot**
-If you include screenshots, the skill can see buttons, forms, and navigation elements, which makes better test cases.
+## Troubleshooting
 
-## Common Issues
+**"Unknown skill: tcs"**
+- Verify `tcs.md` is in `~/.claude/skills/` directory
+- Fully quit and restart Claude Code (not just close window)
+- Check filename is exactly `tcs.md` (not `tcs.md.txt`)
 
-### "Unknown skill: tcs"
+**"File not found"**
+- Use absolute file paths
+- Verify file exists at specified location
+- Check for typos in filename
 
-**Problem:** Claude Code doesn't recognize the skill
+**CSV won't import to Jira**
+- Open CSV in text editor to verify format
+- Ensure exactly 3 columns: "Action", "Data", "Expected Result"
+- Comment lines (starting with #) are fine
 
-**Fix:**
-1. Make sure the file is named `tcs.md` (not `tcs.md.txt` - Windows sometimes hides extensions)
-2. Check it's in the right folder: `.claude/skills/`
-3. Completely close and reopen Claude Code (not just the window, actually quit the app)
-4. Type `/skills` to verify it's there
+## Examples
 
-### "File not found" errors
+**Simple story:**
+```
+/tcs "bugfix-ATS-500.xml" "" "Login, Navigate to Dashboard"
+```
 
-**Problem:** Skill can't find your XML or image files
+**Full feature with UI:**
+```
+/tcs "feature-ATS-632.xml" "mockup1.png,mockup2.png,mockup3.png" "Login as QA user, Open Vacancies module"
+```
 
-**Fix:**
-- Use the full file path: `C:\Users\YourName\Desktop\ATS-632.xml`
-- Or make sure you're in the same folder as your files in Claude Code
-
-### Jira won't import the CSV
-
-**Problem:** CSV import fails in Jira Xray
-
-**Fix:**
-- Open the CSV file in a text editor to check it looks correct
-- Make sure it has exactly 3 columns: "Action", "Data", "Expected Result"
-- The `#` comment lines at the top are okay - Jira ignores them
-
-## Questions or Problems?
-
-If something isn't working or the instructions are unclear, open an issue on GitHub. I'm a QA engineer too, so I get it - just let me know what went wrong and I'll help.
-
-## Share This
-
-If this helped you, share it with your QA team. The more people use it, the better I can make it.
+**Refactor existing tests:**
+```
+/tcs "" "" "" "refactor" "old_test_cases.txt"
+```
 
 ---
 
-*Made by a QA engineer for QA engineers. No fancy stuff, just practical test case generation.*
+*Built for QA engineers by a QA engineer. Consolidates test cases, reduces maintenance, maintains coverage.*
