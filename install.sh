@@ -5,18 +5,18 @@
 echo -e "\033[36mInstalling TCS skill for Claude Code...\033[0m"
 
 # Define paths
-SKILLS_DIR="$HOME/.claude/skills"
-SKILL_FILE="$SKILLS_DIR/tcs.md"
+SKILL_DIR="$HOME/.claude/skills/tcs"
+SKILL_FILE="$SKILL_DIR/SKILL.md"
 
-# Create skills directory if it doesn't exist
-if [ ! -d "$SKILLS_DIR" ]; then
-    echo -e "\033[33mCreating skills directory...\033[0m"
-    mkdir -p "$SKILLS_DIR"
+# Create skill directory if it doesn't exist
+if [ ! -d "$SKILL_DIR" ]; then
+    echo -e "\033[33mCreating skill directory...\033[0m"
+    mkdir -p "$SKILL_DIR"
 fi
 
 # Copy the skill file
 if [ -f "tcs.md" ]; then
-    echo -e "\033[33mCopying tcs.md to skills directory...\033[0m"
+    echo -e "\033[33mCopying tcs.md to $SKILL_FILE...\033[0m"
     cp "tcs.md" "$SKILL_FILE"
     echo -e "\033[32m✓ Installation complete!\033[0m"
     echo ""

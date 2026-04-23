@@ -17,12 +17,12 @@ Saves time on repetitive test case writing while following ISTQB best practices.
 
 Mac/Linux:
 ```bash
-mkdir -p ~/.claude/skills && curl -fsSL https://raw.githubusercontent.com/paulsense/tcs-skill/main/tcs.md -o ~/.claude/skills/tcs.md
+mkdir -p ~/.claude/skills/tcs && curl -fsSL https://raw.githubusercontent.com/paulsense/tcs-skill/main/tcs.md -o ~/.claude/skills/tcs/SKILL.md
 ```
 
 Windows (PowerShell):
 ```powershell
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills" | Out-Null; Invoke-WebRequest -Uri "https://raw.githubusercontent.com/paulsense/tcs-skill/main/tcs.md" -OutFile "$env:USERPROFILE\.claude\skills\tcs.md"
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills\tcs" | Out-Null; Invoke-WebRequest -Uri "https://raw.githubusercontent.com/paulsense/tcs-skill/main/tcs.md" -OutFile "$env:USERPROFILE\.claude\skills\tcs\SKILL.md"
 ```
 
 **Or clone and run install script:**

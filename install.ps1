@@ -4,18 +4,18 @@
 Write-Host "Installing TCS skill for Claude Code..." -ForegroundColor Cyan
 
 # Define paths
-$skillsDir = "$env:USERPROFILE\.claude\skills"
-$skillFile = "$skillsDir\tcs.md"
+$skillDir = "$env:USERPROFILE\.claude\skills\tcs"
+$skillFile = "$skillDir\SKILL.md"
 
-# Create skills directory if it doesn't exist
-if (!(Test-Path $skillsDir)) {
-    Write-Host "Creating skills directory..." -ForegroundColor Yellow
-    New-Item -ItemType Directory -Force -Path $skillsDir | Out-Null
+# Create skill directory if it doesn't exist
+if (!(Test-Path $skillDir)) {
+    Write-Host "Creating skill directory..." -ForegroundColor Yellow
+    New-Item -ItemType Directory -Force -Path $skillDir | Out-Null
 }
 
 # Copy the skill file
 if (Test-Path "tcs.md") {
-    Write-Host "Copying tcs.md to skills directory..." -ForegroundColor Yellow
+    Write-Host "Copying tcs.md to $skillFile..." -ForegroundColor Yellow
     Copy-Item "tcs.md" -Destination $skillFile -Force
     Write-Host "✓ Installation complete!" -ForegroundColor Green
     Write-Host ""

@@ -4,7 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a **Claude Code skill** that generates Jira Xray test cases from user stories and UI screenshots. The skill (`tcs.md`) is installed into users' `~/.claude/skills/` directory and invoked via `/tcs` command.
+This is a **Claude Code skill** that generates Jira Xray test cases from user stories and UI screenshots. The skill (`tcs.md`) is installed into users' `~/.claude/skills/tcs/SKILL.md` directory and invoked via `/tcs` command.
+
+**Important**: Skills must be in a subdirectory structure:
+```
+~/.claude/skills/
+  └── tcs/
+      └── SKILL.md
+```
+NOT `~/.claude/skills/tcs.md`
 
 **Core functionality:**
 - Parses Jira XML exports to extract user stories and acceptance criteria
@@ -52,10 +60,12 @@ Since this is a skill definition, testing requires:
 1. **Install to local Claude Code:**
    ```bash
    # Mac/Linux
-   cp tcs.md ~/.claude/skills/tcs.md
+   mkdir -p ~/.claude/skills/tcs
+   cp tcs.md ~/.claude/skills/tcs/SKILL.md
    
    # Windows (PowerShell)
-   Copy-Item tcs.md "$env:USERPROFILE\.claude\skills\tcs.md"
+   New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills\tcs" | Out-Null
+   Copy-Item tcs.md "$env:USERPROFILE\.claude\skills\tcs\SKILL.md"
    ```
 
 2. **Restart Claude Code** (full restart, not just window close)
