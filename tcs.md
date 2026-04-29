@@ -1,7 +1,7 @@
 ---
 name: tcs
 description: Generate or refactor Jira Xray test cases from user stories with optional Figma designs
-args: [story, images, common_steps, mode, existing_tcs]
+args: [story, images, common_steps, mode, existing_tcs, app_map]
 user-invocable: true
 allowed-tools:
   - Read
@@ -28,10 +28,12 @@ You are an expert QA engineer specializing in Jira Xray test case design and opt
 **PREPROCESSING**:
 1. **Story (required)**: If {{story}} contains path separators (/ or \) or ends with .xml, read the file and extract content. Otherwise, treat as story text.
 2. **Images (optional)**: If {{images}} provided, parse comma-separated Figma image paths. Read each file to identify interactive components, user flows, form elements, navigation patterns, and UI features.
+3. **App map (optional, recommended)**: If {{app_map}} is provided, treat it as a path (or comma-separated list of paths) to one or more markdown files describing the target application's UI/UX, routes, fields, validation rules, states, and known edge cases. Read each file with the Read tool. Use the map(s) as the authoritative source for: actual route paths, exact field labels, button names, validation behavior, status pill values, modal titles, tab names, and known inconsistencies/edge cases worth covering. Prefer map-derived terminology over inferred terminology in every test step. If the map contains a numbered section list (e.g. §5.4), cite the relevant sections in the test case description so coverage is traceable.
 
 **OBJECTIVE**: Develop minimal yet comprehensive test cases covering:
 - User story requirements and acceptance criteria
 - UI/UX design specifications (when images provided)
+- Real application behavior, routes, fields, and edge cases (when app map provided)
 - ISTQB test design principles
 
 **CRITICAL QA PRINCIPLE - TEST CASE CONSOLIDATION**:
@@ -84,10 +86,19 @@ From UI/UX images (if provided), identify:
 - Layout and responsive design elements
 - Accessibility features
 
+From app map (if provided), extract:
+- Exact route(s) the story touches (use them in navigation steps)
+- Exact field labels, button names, tab names, and modal titles to use verbatim in steps
+- Validation rules already documented (required fields, disabled-state conditions)
+- States/status values that exist (chip values, list filters, empty states)
+- Known inconsistencies or edge cases listed in the map that intersect this story — include at least one as a negative/edge scenario in a consolidated TC
+- Cross-page flows the story is part of (use them to scope TC boundaries)
+
 **TEST CASE DESIGN STANDARDS**:
 - Action-oriented titles following ISTQB guidelines (begin with verification verbs: "Verify", "Validate", "Test")
 - One TC per distinct workflow/feature (not per test condition)
-- Reference specific UI elements by visible labels when images provided
+- Reference specific UI elements by visible labels when images or app map provided
+- When app map is provided, use its exact terminology (route paths, button labels, chip values, tab names) — do not paraphrase
 - Consolidate related test scenarios into comprehensive single TCs
 - Incorporate positive paths, boundary conditions, and negative scenarios within consolidated TCs
 - Achieve minimal test case count with comprehensive coverage
@@ -122,6 +133,7 @@ After writing all CSV files, provide summary:
 **PREPROCESSING**:
 1. **Existing TCs (required)**: If {{existing_tcs}} contains path separators, read file. Otherwise, parse as test case content.
 2. **Story (optional)**: If provided and is path, read file for coverage verification.
+3. **App map (optional, recommended)**: If {{app_map}} is provided, read each path. Use it to verify that consolidated TCs use real route paths and field labels, and to identify documented edge cases the existing TCs may have missed. During Phase 3 (Coverage Preservation Verification), additionally check coverage against any "known inconsistencies / edge cases" section in the map and flag gaps.
 
 **OBJECTIVE**: Perform deep analysis of existing test cases and consolidate to minimal comprehensive coverage while maintaining full requirement traceability.
 
