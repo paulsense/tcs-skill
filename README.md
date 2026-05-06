@@ -1,180 +1,60 @@
-# TCS - Test Case Skill for Claude Code
+# TCS — Test Case Skill for Claude Code
 
-A Claude Code skill that generates Jira Xray test cases from user stories and UI screenshots.
+Generates Jira Xray CSV test cases from Jira user story XMLs and UI screenshots. Consolidates positive/negative/edge cases into a few comprehensive workflows instead of one TC per variant.
 
-## What It Does
+## Install
 
-Creates ready-to-import CSV test cases for Jira Xray from:
-- Jira user story XML exports
-- UI screenshots (Figma designs, mockups)
-- Your common setup steps
-
-Saves time on repetitive test case writing while following ISTQB best practices.
-
-## Installation
-
-**One-line install (recommended):**
+Installs to `~/.claude/skills/tcs/SKILL.md`.
 
 Mac/Linux:
 ```bash
-mkdir -p ~/.claude/skills/tcs && curl -fsSL https://raw.githubusercontent.com/paulsense/tcs-skill/main/tcs.md -o ~/.claude/skills/tcs/SKILL.md
+mkdir -p ~/.claude/skills/tcs && curl -fsSL https://raw.githubusercontent.com/paulsense/tcs-skill/main/tcs/SKILL.md -o ~/.claude/skills/tcs/SKILL.md
 ```
 
 Windows (PowerShell):
 ```powershell
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills\tcs" | Out-Null; Invoke-WebRequest -Uri "https://raw.githubusercontent.com/paulsense/tcs-skill/main/tcs.md" -OutFile "$env:USERPROFILE\.claude\skills\tcs\SKILL.md"
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\skills\tcs" | Out-Null; Invoke-WebRequest -Uri "https://raw.githubusercontent.com/paulsense/tcs-skill/main/tcs/SKILL.md" -OutFile "$env:USERPROFILE\.claude\skills\tcs\SKILL.md"
 ```
 
-**Or clone and run install script:**
-```bash
-git clone https://github.com/paulsense/tcs-skill.git
-bash tcs-skill/install.sh  # Mac/Linux
-# or
-powershell -ExecutionPolicy Bypass -File tcs-skill\install.ps1  # Windows
-```
+Or, if you've cloned the repo, copy `tcs/SKILL.md` into `~/.claude/skills/tcs/SKILL.md` yourself.
 
-Then restart Claude Code and verify with `/skills`.
+Restart Claude Code, then verify with `/skills`.
 
 ## Usage
 
-The skill has two modes: **generate** (create new test cases) and **refactor** (consolidate existing test cases).
-
-### Generate Mode (Default)
-
-Create new test cases from a Jira user story:
-
+**Generate** (default): create test cases from a story.
 ```
-/tcs "ATS-632.xml"
+/tcs "ATS-632.xml" "ui1.png,ui2.png" "Login as admin, Navigate to Users"
 ```
+Args: `story` (XML path or text), `images` (comma-separated, optional), `common_steps` (optional). Use `""` to skip an arg.
 
-With UI screenshots:
+**Refactor**: consolidate existing TCs.
 ```
-/tcs "ATS-632.xml" "ui1.png,ui2.png"
+/tcs "" "" "" "refactor" "existing_tcs.csv"
 ```
 
-With custom common steps:
-```
-/tcs "ATS-632.xml" "ui1.png,ui2.png" "Login as admin, Navigate to Users page"
-```
+Output: 3–5 CSV files in the current directory, each with `Action`, `Data`, `Expected Result` columns — ready to import into Jira Xray.
 
-**Parameters:**
-1. `story` - Path to Jira XML export or story text (required)
-2. `images` - Comma-separated image paths (optional, use `""` to skip)
-3. `common_steps` - Setup steps for all test cases (optional, use `""` for defaults)
+## CSV format
 
-**Output:**
-- Creates 3-5 CSV files in current directory: `TC1_Verify_Feature.csv`, `TC2_Validate_UI.csv`, etc.
-- Each file has 3 columns: "Action", "Data", "Expected Result"
-- Ready for direct import into Jira Xray
-
-### Refactor Mode
-
-Consolidate existing test cases into minimal comprehensive coverage:
-
-```
-/tcs "" "" "" "refactor" "existing_testcases.csv"
-```
-
-Or simply provide the existing test cases (auto-detects refactor mode):
-```
-/tcs "" "" "" "" "my_existing_tcs.txt"
-```
-
-**Parameters:**
-1-3. Leave empty with `""`
-4. `mode` - Set to `"refactor"` (optional if providing existing_tcs)
-5. `existing_tcs` - Path to file with existing test cases (required for refactor)
-
-**Output:**
-- Analyzes existing test cases for redundancy
-- Shows consolidation plan and coverage verification
-- Creates consolidated CSV files (typically reduces count by 30-50%)
-
-## What the CSV Files Look Like
-
-Each CSV file contains:
 ```csv
 # Title: Verify user can copy interview
-# Description: Test interview copy functionality with confirmation and cancellation
+# Description: Copy flow with confirm and cancel
 "Action","Data","Expected Result"
 "Login to application","admin credentials","User logged in"
-"Navigate to test area","","Test area displayed"
-"Click Copy Interview","","Modal opens with source selection"
-"Select source vacancy","Vacancy ABC-123","Source selected"
-"Click Confirm","","Interview copied successfully"
 "Click Copy Interview","","Modal opens"
-"Click Cancel","","Modal closes, no changes made"
+"Click Confirm","","Interview copied"
+"Click Cancel","","Modal closes, no changes"
 ```
-
-Import directly into Jira Xray.
-
-## Key Features
-
-**Smart Consolidation:**
-- Creates 1 test case per workflow (not per scenario)
-- Combines positive/negative/edge cases into comprehensive tests
-- Targets 3-5 test cases for typical stories
-
-**UI-Aware:**
-- Analyzes screenshots to identify buttons, forms, navigation
-- References specific UI elements in test steps
-- Validates visual changes
-
-**ISTQB-Compliant:**
-- Action-oriented test case titles
-- Clear expected results
-- Proper test coverage principles
 
 ## Tips
 
-**1. Use full paths if files aren't found:**
-```
-/tcs "C:\Users\YourName\Desktop\story.xml"
-```
-
-**2. Be specific with common steps:**
-```
-Good: "Login as admin, Open Settings, Select User Management"
-Unclear: "Do the setup"
-```
-
-**3. Images help significantly:**
-UI screenshots enable the skill to generate more accurate, detailed test steps.
+- Use absolute paths if files aren't found.
+- Be specific with common steps (`"Login as admin, Open Settings"` beats `"do setup"`).
+- Screenshots noticeably improve step accuracy.
 
 ## Troubleshooting
 
-**"Unknown skill: tcs"**
-- Verify `tcs.md` is in `~/.claude/skills/` directory
-- Fully quit and restart Claude Code (not just close window)
-- Check filename is exactly `tcs.md` (not `tcs.md.txt`)
-
-**"File not found"**
-- Use absolute file paths
-- Verify file exists at specified location
-- Check for typos in filename
-
-**CSV won't import to Jira**
-- Open CSV in text editor to verify format
-- Ensure exactly 3 columns: "Action", "Data", "Expected Result"
-- Comment lines (starting with #) are fine
-
-## Examples
-
-**Simple story:**
-```
-/tcs "bugfix-ATS-500.xml" "" "Login, Navigate to Dashboard"
-```
-
-**Full feature with UI:**
-```
-/tcs "feature-ATS-632.xml" "mockup1.png,mockup2.png,mockup3.png" "Login as QA user, Open Vacancies module"
-```
-
-**Refactor existing tests:**
-```
-/tcs "" "" "" "refactor" "old_test_cases.txt"
-```
-
----
-
-*Built for QA engineers by a QA engineer. Consolidates test cases, reduces maintenance, maintains coverage.*
+- **"Unknown skill: tcs"** — file must be at `~/.claude/skills/tcs/SKILL.md` (subdirectory, not `tcs.md`). Fully restart Claude Code.
+- **"File not found"** — use absolute paths.
+- **CSV won't import** — confirm exactly 3 columns; `#` comment lines are fine.
